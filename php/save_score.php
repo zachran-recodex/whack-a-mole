@@ -1,5 +1,5 @@
 <?php
-header('Content-Type: application/json'); // Pastikan output selalu JSON
+header('Content-Type: application/json');
 
 try {
     // Include database connection

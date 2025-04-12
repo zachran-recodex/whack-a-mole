@@ -1,10 +1,10 @@
 <?php
-header('Content-Type: application/json'); // Pastikan output selalu JSON
+header('Content-Type: application/json');
 
 // Connection parameters
 $db_host = '127.0.0.1';
-$db_user = 'root';     // Update with your MySQL username
-$db_pass = '';         // Update with your MySQL password
+$db_user = 'root';
+$db_pass = '';
 $db_name = 'whack_a_mole';
 
 // Create connection
