@@ -40,7 +40,6 @@ const n = 0;
 // Modal
 const modal = document.querySelector('.modal');
 
-
 modal.addEventListener('click', e => {
   e.preventDefault();
   const selection = e.target.className;
@@ -67,7 +66,6 @@ modal.addEventListener('click', e => {
   start_sfx.play()
 });
 
-
 // Event Listeners
 start.addEventListener('click', startTime)
 retry.addEventListener('click', goMenu)
@@ -93,14 +91,6 @@ function up(e) {
         hit2_sfx.currentTime = 0.1;
         hit2_sfx.play();
       }
-      // const x = Math.round(Math.random() * (2 - 1) + 1);
-      // if(x === 1) {
-      //   pam_sfx.currentTime = 0;
-      //   pam_sfx.play();
-      // } else {
-      //   pum_sfx.currentTime = 0;
-      //   pum_sfx.play();
-      // }
     }
     count++;
     counter.textContent = `${count}`;
@@ -166,6 +156,34 @@ function startTime() {
 }
 // Extra Stuff
 
+// save score to the database
+function saveScoreToDatabase(name, score, difficulty) {
+  return fetch('php/save_score.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      name: name,
+      score: score,
+      difficulty: velocity_level, // Using velocity_level as difficulty indicator
+    }),
+  })
+  .then(response => response.json())
+  .catch(error => console.error('Error saving score:', error));
+}
+
+// get scores from the database
+function getScoresFromDatabase() {
+  return fetch('php/get_scores.php')
+    .then(response => response.json())
+    .then(data => data.scores)
+    .catch(error => {
+      console.error('Error fetching scores:', error);
+      return [];
+    });
+}
+
 function scoreboardUpdater() {
   finalScore = count;
   nameContainer.classList.add('flex');
@@ -173,17 +191,41 @@ function scoreboardUpdater() {
     nameContainer.classList.add('opacity');
   }, 100);
 }
+
+// handle name entry and score saving
 function enterName(e) {
   if (e.keyCode === 13) {
     name = this.value;
+    if (!name.trim()) {
+      alert('Please enter a valid name!');
+      return;
+    }
+    
     this.value = '';
     nameContainer.classList.remove('flex');
     nameContainer.classList.remove('opacity');
-    scoreboard.classList.add('block');
-    scoreboard.classList.add('opacity');
-    scoreboardTable.push({ name, score: finalScore });
-    localStorage.setItem('scoreboard', JSON.stringify(scoreboardTable));
-    sortedScoreTable = scoreboardTable.sort((a, b) => (a.score > b.score ? -1 : 1));
+    
+    // Save score to database
+    saveScoreToDatabase(name, finalScore, velocity_level).then(response => {
+      if (response.success) {
+        // Show scoreboard
+        displayScoreboard();
+      } else {
+        alert('Error saving score: ' + response.message);
+        goMenu();
+      }
+    });
+  }
+}
+
+// display the scoreboard
+function displayScoreboard() {
+  scoreboard.classList.add('block');
+  scoreboard.classList.add('opacity');
+  
+  // Get scores from database
+  getScoresFromDatabase().then(scores => {
+    // Build scoreboard table
     table.innerHTML = `
     <button class="score-button">X</button>
     <thead>
@@ -191,21 +233,34 @@ function enterName(e) {
             <th>#</th>
             <th>Name</th>
             <th>Score</th>
+            <th>Difficulty</th>
         </tr>
     </thead>`;
 
-    for (let i = 0; i < sortedScoreTable.length; i++) {
-      if (i > 7) break;
+    // Add each score to the table
+    for (let i = 0; i < scores.length; i++) {
+      // Convert difficulty number to text
+      let diffText = '';
+      switch(scores[i].difficulty) {
+        case 0: diffText = 'Easy'; break;
+        case 1: diffText = 'Medium'; break;
+        case 2: diffText = 'Hard'; break;
+        default: diffText = 'Unknown';
+      }
+      
       table.innerHTML += `
       <tr>
         <td>${i + 1}</td>
-        <td>${sortedScoreTable[i].name}</td>
-        <td>${sortedScoreTable[i].score}</td>
+        <td>${scores[i].name}</td>
+        <td>${scores[i].score}</td>
+        <td>${diffText}</td>
       </tr>
       `;
     }
+    
+    // Add event listener to close button
     table.querySelector('.score-button').addEventListener('click', goMenu);
-  }
+  });
 }
 
 function goMenu() {
@@ -320,5 +375,15 @@ function changeVolumeLevel() {
   if(volume_level) {
     start_sfx.currentTime = 0.125;
     start_sfx.play();
+  }
+}
+
+// get difficulty name
+function getDifficultyName() {
+  switch(velocity_level) {
+    case 0: return 'Easy';
+    case 1: return 'Medium';
+    case 2: return 'Hard';
+    default: return 'Unknown';
   }
 }
