@@ -156,8 +156,10 @@ function startTime() {
 }
 // Extra Stuff
 
-// save score to the database
+// save score to the database with better error handling
 function saveScoreToDatabase(name, score, difficulty) {
+  console.log("Saving score:", { name, score, difficulty });
+  
   return fetch('php/save_score.php', {
     method: 'POST',
     headers: {
@@ -166,11 +168,28 @@ function saveScoreToDatabase(name, score, difficulty) {
     body: JSON.stringify({
       name: name,
       score: score,
-      difficulty: velocity_level, // Using velocity_level as difficulty indicator
+      difficulty: difficulty,
     }),
   })
-  .then(response => response.json())
-  .catch(error => console.error('Error saving score:', error));
+  .then(response => {
+    // Check if response is ok (status in the range 200-299)
+    if (!response.ok) {
+      throw new Error('Network response was not ok: ' + response.status);
+    }
+    
+    // Check content type to ensure it's JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new TypeError("Response is not JSON. Received: " + contentType);
+    }
+    
+    return response.json();
+  })
+  .catch(error => {
+    console.error('Error saving score:', error);
+    // Return a standardized error response
+    return { success: false, message: 'Failed to save score: ' + error.message };
+  });
 }
 
 // get scores from the database
@@ -192,7 +211,7 @@ function scoreboardUpdater() {
   }, 100);
 }
 
-// handle name entry and score saving
+// handle name entry and score saving with better error handling
 function enterName(e) {
   if (e.keyCode === 13) {
     name = this.value;
@@ -206,15 +225,24 @@ function enterName(e) {
     nameContainer.classList.remove('opacity');
     
     // Save score to database
-    saveScoreToDatabase(name, finalScore, velocity_level).then(response => {
-      if (response.success) {
-        // Show scoreboard
-        displayScoreboard();
-      } else {
-        alert('Error saving score: ' + response.message);
+    saveScoreToDatabase(name, finalScore, velocity_level)
+      .then(response => {
+        console.log("Response from server:", response);
+        
+        if (response && response.success) {
+          // Show scoreboard
+          displayScoreboard();
+        } else {
+          const errorMsg = response ? response.message : 'Unknown error';
+          alert('Error saving score: ' + errorMsg);
+          goMenu();
+        }
+      })
+      .catch(error => {
+        console.error("Unhandled error:", error);
+        alert('An unexpected error occurred. Please try again.');
         goMenu();
-      }
-    });
+      });
   }
 }
 
