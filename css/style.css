@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
-@font-face {font-family: "Titan One";src: url("./TitanOne-Regular.ttf")}
+@font-face {font-family: "Titan One";src: url("./font/TitanOne-Regular.ttf")}
 * {
   margin: 0;
   padding: 0;
@@ -45,7 +45,7 @@
 .modal .title h1 {
   margin-top: 1.5rem;
   color: #000;
-  background-image: url('./hammer.png');
+  background-image: url('.images/hammer.png');
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
@@ -98,7 +98,7 @@
 
 body {
   position: relative;
-  background: url('background.jpg');
+  background: url('./images/background.jpg');
   min-height: 100vh;
   max-height: 100vh;
   display: grid;
@@ -136,7 +136,7 @@ body {
   transform: translateX(-2.5rem);
 }
 .view main > div {
-  cursor: url('hammer2.png'), auto;	
+  cursor: url('./images/hammer2.png'), auto;	
 }
 .view .controls {
   display: grid;
@@ -272,7 +272,7 @@ main .side-controls--container span.none {display: none;}
   overflow: hidden;
 }
 .mole {
-  background-image: url(mole.png);
+  background-image: url('./images/mole.png');
   position: relative;
   height: 100%;
   width: 100%;

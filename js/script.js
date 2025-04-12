@@ -1,11 +1,11 @@
 // Elements
-const start_sfx = new Audio('./css/start.mp3');
-const hit_sfx = new Audio('./css/hit.mp3');
-const hit2_sfx = new Audio('./css/hit2.mp3');
-const peep_sfx = new Audio('./css/peep.mp3');
-const ding_sfx = new Audio('./css/ding.mp3');
-const pam_sfx = new Audio('./css/pam.mp3');
-const pum_sfx = new Audio('./css/pum.mp3');
+const start_sfx = new Audio('./audio/start.mp3');
+const hit_sfx = new Audio('./audio/hit.mp3');
+const hit2_sfx = new Audio('./audio/hit2.mp3');
+const peep_sfx = new Audio('./audio/peep.mp3');
+const ding_sfx = new Audio('./audio/ding.mp3');
+const pam_sfx = new Audio('./audio/pam.mp3');
+const pum_sfx = new Audio('./audio/pum.mp3');
 const holes = document.querySelectorAll('.hole');
 const moles = document.querySelectorAll('.moles');
 const counter = document.querySelector('.score span');
